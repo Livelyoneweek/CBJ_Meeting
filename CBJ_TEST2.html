@@ -12,40 +12,67 @@
  </script>
  <title>MEMBER_PAGE</title>
  <mtea charset="utf-8">
-   <style>
-    a{
-      color:blue;
-      text-decoration: none;
-    }
-    #active{
-      color:red;
-    }
-   </style>
+  <style>
+     body{
+        margin:0;
+     }
+      a {
+        color:blue;
+        text-decoration: none;
+      }
+      h1{
+        font-size:45px;
+        text-align:center;
+        border-bottom:2px solid gray;
+        margin:0px;
+     padding:20px;
+     }
+      #grid ol{
+        width:100px;
+        border-right:2px solid gray;
+        margin:0px;
+        padding:20px;
+        padding-left:40px;
+      }
+      #grid{
+        display:grid;
+        grid-template-columns:150px 1fr
+      }
+
+      #active{
+        color:red;
+      }
+      #grid #property{
+        padding-left:30px;
+      }
+  </style>
 </head>
 <body>
  <h1><a href="index.html" class="saw">시화 계모임</a></h1>
- <ol>
-  <li> <a href="CBJ_TEST.html" class="saw">발자취</a></li>
-  <li> <a href="CBJ_TEST2.html" class="saw" id="active">조직도</a></li>
-  <li> <a href="CBJ_TEST3.html" class="saw">가입방법</a></li>
- </ol>
+ <div id="grid">
+  <ol>
+   <li> <a href="CBJ_TEST.html" class="saw">발자취</a></li>
+   <li> <a href="CBJ_TEST2.html" class="saw" id="active">조직도</a></li>
+   <li> <a href="CBJ_TEST3.html" class="saw">가입방법</a></li>
+  </ol>
+  <div id="property">
+   <h2>조직도</h2>
+   <ul>
+    <li> ★건희(조직 대표)</li>
+    <li> ☆창식(실무 팀장)</li>
+    <li> 성근</li>
+    <li> 태현</li>
+    <li> 진형</li>
+    <li> 오성</li>
+    <li> 현수</li>
+    <li> 병재</li>
+    <li> IU</li>
+   </ul>
 
- <h2>조직도</h2>
- <ul>
-  <li> ★건희(조직 대표)</li>
-  <li> ☆창식(실무 팀장)</li>
-  <li> 성근</li>
-  <li> 태현</li>
-  <li> 진형</li>
-  <li> 오성</li>
-  <li> 현수</li>
-  <li> 병재</li>
-  <li> IU</li>
- </ul>
+   <p style="margin-top:40px;">hello world</p>
 
- <p style="margin-top:40px;">hello world</p>
-
- <img src="v1.jpg" width="70%">
-
+   <img src="v1.jpg" width="70%">
+  </div>
+ </div>
 </body>
 </html>

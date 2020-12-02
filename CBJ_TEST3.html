@@ -12,30 +12,57 @@
  </script>
  <title>JOIN_PAGE</title>
  <mtea charset="utf-8">
-   <style>
-    a{
+  <style>
+   body{
+      margin:0;
+   }
+    a {
       color:blue;
       text-decoration: none;
     }
+    h1{
+      font-size:45px;
+      text-align:center;
+      border-bottom:2px solid gray;
+      margin:0px;
+   padding:20px;
+   }
+    #grid ol{
+      width:100px;
+      border-right:2px solid gray;
+      margin:0px;
+      padding:20px;
+      padding-left:40px;
+    }
+    #grid{
+      display:grid;
+      grid-template-columns:150px 1fr
+    }
+
     #active{
       color:red;
+    }
+    #grid #property{
+      padding-left:30px;
     }
    </style>
 </head>
 <body>
  <h1><a href="index.html" class="saw">시화 계모임</a></h1>
+ <div id="grid">
  <ol>
   <li> <a href="CBJ_TEST.html" class="saw">발자취</a></li>
   <li> <a href="CBJ_TEST2.html" class="saw">조직도</a></li>
   <li> <a href="CBJ_TEST3.html" class="saw" id="active">가입방법</a></li>
  </ol>
 
-
+ <div id="property">
  <h2>★가입방법</h2>
  <p> 오프라인으로 가능, 현재 온라인 신청 불가능</p>
  <p style="margin-top:40px;">Try 시화 가입</p>
 
  <img src="cf.jpg" width="30%">
-
+ </div>
+ </div>
 </body>
 </html>
