@@ -1,9 +1,11 @@
 body{
   margin:0;
+
 }
 a {
-  color:blue;
+  color:white;
   text-decoration: none;
+  display:inline-block;
 }
 h1{
   font-size:45px;
@@ -11,17 +13,62 @@ h1{
   border-bottom:2px solid gray;
   margin:0px;
   padding:20px;
+  background-image:url('images/4.jpg');
+  background-repeat:no-repeat;
+  background-size:cover;
+}
+
+@font-face{
+  font-family:"HiMelody";
+  src:url("Hi_Melody/HiMelody-Regular.ttf") format("truetype");
+  font-style:normal;
+  font-weight:normal;
+}
+#property{
+
+}
+
+li {
+      padding:10px 10px 10px 10px;
+      display:block;
+    }
+li .saw{
+      font-family:HiMelody;
+      font-size:20px;
+      background-color:#1f75d9;
+      border-bottom:5px solid #165115;
+      border-radius:20px;
+      padding:10px 10px 10px 10px;
+      transition:all 0.1s;
+      text-shadow: 0px -1px rgba(0, 0, 0, 0.44);
+    }
+li .saw:active{
+  transform:translateY(3px);
+  border-bottom:2px solid #f39;
+}
+
+h1 .saw::after{
+  content:'';
+  display:block;
+  width:0;
+  height:2px;
+  background: #fff;
+  transition: width .3s
+}
+h1 .saw:hover::after{
+  width:100%;
+  transition:width .3s
 }
 #grid{
   display:grid;
-  grid-template-columns:150px 1fr
+  grid-template-columns:170px 1fr
 }
 #grid ol{
-  width:100px;
+  width:120px;
   border-right:2px solid gray;
   margin:0px;
   padding:20px;
-  padding-left:40px;
+
 }
 #active{
   color:red;
@@ -39,4 +86,3 @@ h1{
    h1{
     border-bottom:none;
   }
-}
