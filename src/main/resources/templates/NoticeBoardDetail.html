@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CLLKMSYL76"></script>
+
+    <meta charset="UTF-8">
+    <meta property="og:title" content="CBJ_Home">
+    <meta property="og:description" content="이 사이트 추천이요">
+    <meta property="og:image" content="/images/220424.jpg">
+    <title>CBJ_MAIN</title>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-CLLKMSYL76');
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+</head>
+
+<script>
+
+    $(document).ready(function () {
+        // HTML 문서를 로드할 때마다 실행합니다.
+        getDetails();
+        getComments();
+    })
+
+    // 게시글 내용 불러오는 함수
+    function getDetails() {
+        let id = localStorage.getItem('id');
+
+        $.ajax({
+            type: 'GET',
+            url: `/api/memo/get/${id}`,
+            success: function (response) {
+                let message = response;
+                let id = message['id'];
+                let username = message['username'];
+                let contents = message['contents'];
+                let title = message['title'];
+                let modifiedAt = message['modifiedAt'];
+
+                document.getElementById("read-box-id").value = `${id}`;
+
+                const username1 = document.getElementById('read-box-username');
+                username1.innerHTML = `<div style="color:blue">작성자: ${username}</div>`;
+
+                const title1 = document.getElementById('read-box-title');
+                title1.innerHTML = `<div style="color:orangered"> 제목: ${title}<div>`;
+
+                const contents1 = document.getElementById('read-box-contents');
+                contents1.innerHTML = `<div>${contents}<div>`;
+
+                document.getElementById("post-contents").value = `${contents}`;
+
+                const modifiedAt1 = document.getElementById('read-box-modifiedAt');
+                modifiedAt1.innerHTML = `<div style="color:gray">작성 시간: ${modifiedAt}</div>`;
+
+                let check = `${username}`;
+                let check2= $('#user-check').text();
+
+                if (check == check2) {
+                    document.getElementById("post-edit-btn").style.display="inline-block";
+                    // $('post-edit-btn').show();
+                }
+            }
+        })
+
+
+
+    }
+    // 댓글들 불러오는 함수
+    function getComments() {
+
+        $('#cards-box').empty();
+
+        let post = localStorage.getItem('id');
+        $.ajax({
+            type: 'GET',
+            url: `/api/comment/get/${post}`,
+            success: function (response) {
+                for (let i = 0; i < response.length; i++) {
+                    let message = response[i];
+                    let id = message['id'];
+                    let userid = message['userid'];
+                    let post = message['post'];
+                    let contents = message['contents'];
+                    console.log("contents :"+contents);
+                    let modifiedAt = message['modifiedAt'];
+                    addHTML(id, userid, post,contents, modifiedAt);
+                }
+            }
+        })
+    }
+
+    function addHTML(id, userid, post, contents, modifiedAt) {
+        // 1. HTML 태그를 만듭니다.
+        let tempHtml = `<tr class="table-row">
+                        <th id="${id}-username"> ${userid}</th>
+                        <th id="date">${modifiedAt}</th>
+                        <th id="${id}-contents">${contents}
+                        <textarea id="textarea-${id}" style="display:none" rows="1">${contents}</textarea>
+                        </th>
+                        <th id="edit-delete">
+                            <button class="buttonHide" id="${id}-delete" onclick="deleteCheck(${id})"> 삭제 버튼 </button>
+                            <button class="buttonHide" id="${id}-edit" onclick="editButton(${id},${userid})"> 수정 버튼 </button>
+                            <button class="buttonHide2" id="${id}-editFi" onclick="submitEdit(${id})"> 수정 완료 </button>
+                        </th>
+                    </tr>`;
+        // 2. #table-body 에 HTML을 붙인다.
+        $(`#table-body`).append(tempHtml);
+
+        let check = `${userid}`;
+        let check2= $('#user-check').text();
+
+        if (check == check2) {
+            // $(`#${id}-delete`).addClass("is-active")
+            document.getElementById(`${id}-delete`).style.display="inline-block";
+            document.getElementById(`${id}-edit`).style.display="inline-block";
+        }
+
+    }
+
+    // 댓글 수정 버튼 누를 시 수정 창 뜨는 함수
+    function editButton(id,userid) {
+        //localStorage.setItem('commentId',id);
+        // $(`#${id}-contents`).hide();
+        // $(`#textarea-${id}`).show();
+
+        // $(`#${id}-edit`).hide()
+        // $(`#${id}-editFi`).show();
+
+        let contents = document.getElementById(`textarea-${id}`).value;
+
+        console.log("id:"+id);
+        console.log("contents:"+contents);
+        console.log("userid:"+userid);
+
+
+        document.getElementById("write-box").style.display = 'block';
+        document.getElementById("commentButton").style.display = 'none';
+        document.getElementById("comment-edit-finish-btn").style.display = 'inline-block';
+        document.getElementById('username').innerText = userid;
+
+        localStorage.setItem('commentId',id);
+        document.getElementById("contents").value = contents;
+    }
+
+    function postEdit() {
+
+        $(`#read-box-contents`).hide();
+        $(`#post-contents`).show();
+
+        document.getElementById(`post-edit-btn`).style.display="none";
+        document.getElementById(`post-edit-finish-btn`).style.display="inline-block";
+
+    }
+
+    function postEditFinish() {
+
+        let contents = document.getElementById('post-contents').value;
+        let id = document.getElementById("read-box-id").value;
+        console.log("id :" + id);
+        console.log("contents :" + contents);
+
+        let data = {'contents': contents};
+
+        $.ajax({
+            type: "PUT",
+            url: `/islogin/memo/edit/${id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                alert("게시글 수정이 완료되었습니다")
+
+                window.location.reload();
+            }
+        })
+
+    }
+
+
+    // 댓글 수정 함수.
+    function submitEdit() {
+        let id = localStorage.getItem('commentId');
+        // let contents = document.getElementById(`textarea-${id}`).value;
+        let contents = document.getElementById('contents').value;
+
+        // 3. 전달할 data JSON으로 만듭니다.
+        let data = {'id': id, 'contents': contents};
+        // 4. PUT /api/memos/{id} 에 data를 전달합니다.
+        $.ajax({
+            type: "PUT",
+            url: `/islogin/comment/edit/${id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                alert('메시지 변경에 성공하였습니다.');
+
+                window.location.reload();
+            }
+        });
+    }
+
+
+    //댓글 삭제 누를 시 확인 창 뜨는 함수
+    function deleteCheck(id) {
+        localStorage.setItem('commentId',id);
+        document.getElementById("delete-check-box").style.display = 'block';
+
+    }
+    // 댓글 삭제 함수
+    function deleteOne() {
+        let id = localStorage.getItem('commentId');
+        $.ajax({
+            type: "DELETE",
+            url: `/islogin/comment/delete/${id}`,
+            success: function (response) {
+                alert('메시지 삭제에 성공하였습니다.');
+                window.location.reload();
+            }
+        })
+    }
+
+
+    // 댓글 작성 함수
+    function writePost() {
+        // 1. 작성한 메모를 불러옵니다.
+        //let userid = $('#user-name').val();
+        let userid = $('#user-check').text();
+        let post = localStorage.getItem('id');
+        let contents = $('#contents').val();
+
+        if (contents =="") {
+            alert("댓글을 입력해주세요");
+            return;
+        }
+
+        // 4. 전달할 data JSON으로 만듭니다.
+        let data = {'userid': userid, 'post':post, 'contents': contents };
+        // 5. POST /api/memos 에 data를 전달합니다.
+        $.ajax({
+            type: "POST",
+            url: "/islogin/comment/write",
+            contentType: "application/json", // JSON 형식으로 전달함을 알리기
+            data: JSON.stringify(data),
+            success: function (response) {
+                alert('메시지가 성공적으로 작성되었습니다.');
+                document.getElementById("write-box").style.display = 'none';
+                window.location.reload();
+            }
+        });
+    }
+
+
+    // 댓글 작성 하려 할 때 로그인 체크하는 함수
+    function loginCheck() {
+        let username1 = $('#user-check').text();
+        let username2 = "";
+        if (username1 == username2) {
+            alert("로그인을 먼저 해주시기 바랍니다")
+            location.href = '/user/login'
+        } else {
+            document.getElementById("write-box").style.display = 'block';
+            document.getElementById("commentButton").style.display = 'inline-block';
+            document.getElementById('username').innerText = username1;
+
+        }
+    }
+
+    // 댓글 작성 나가기 시에 커멘트에 내용 초기화
+    function commentCancle() {
+        document.getElementById("write-box").style.display = 'none';
+        document.getElementById("editButton").style.display = 'none';
+        document.getElementById("contents").value = "";
+
+    }
+</script>
+
+
+<style>
+
+    .read-box{
+        width:800px;
+        height : 700px;
+        border : 1px solid;
+        margin : 50px auto 0 auto;
+        text-align: center;
+        background-color: whitesmoke;
+    }
+
+    .read-contents {
+        border : 1px solid;
+        width : 600px;
+        height : 350px;
+        text-align: center;
+        margin:auto;
+    }
+
+    .mybtn {
+        height : 40px;
+        width : 150px;
+        padding:10px;
+        margin: 10px auto 0px auto;
+        cursor:pointer;
+    }
+
+    .mybtn2 {
+        height : 40px;
+        width : 150px;
+        padding:5px;
+        margin: 0 auto 10px auto;
+        font-size: 20px;
+        cursor:pointer;
+    }
+
+    #post-edit-btn {
+        height : 40px;
+        width : 150px;
+        padding:10px;
+        margin: 10px auto 0px auto;
+        cursor:pointer;
+        display: none;
+    }
+
+    #post-edit-finish-btn {
+        height : 40px;
+        width : 150px;
+        padding:10px;
+        margin: 10px auto 0px auto;
+        cursor:pointer;
+        display: none;
+    }
+
+    #comment-edit-finish-btn {
+        height : 40px;
+        width : 150px;
+        padding:10px;
+        margin: 10px auto 0px auto;
+        cursor:pointer;
+        display: none;
+    }
+
+
+    #write-box{
+        width:500px;
+        height : 400px;
+        border : 1px solid;
+        margin : 180px auto 0 auto;
+        text-align: center;
+        background-color: whitesmoke;
+        display: none;
+    }
+
+    #logout-text {
+        position:absolute;
+        top:20px;
+        right:48px;
+        font-size: 18px;
+        font-family: SpoqaHanSansNeo;
+        font-size: 18px;
+        font-weight: 500;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: 0.36px;
+        text-align: center;
+        color: #000000;
+    }
+
+    #login-text{
+        position:absolute;
+        top:65px;
+        right:48px;
+        font-size: 18px;
+        font-family: SpoqaHanSansNeo;
+        font-size: 18px;
+        font-weight: 500;
+        font-stretch: normal;
+        font-style: normal;
+        line-height: 1;
+        letter-spacing: 0.36px;
+        text-align: center;
+        color: #000000;
+    }
+
+    #editButton {
+        display:none;
+        cursor:pointer;
+    }
+
+    .buttonHide {
+        display:none;
+    }
+    .buttonHide2 {
+        display:none;
+    }
+
+
+    #delete-check-box{
+        position:absolute;
+        top:600px;
+        width: 1000px;
+        height: 80px;
+        margin: 10px auto;
+        border:2px solid red;
+        background-color: #4A86E8;
+        display: none;
+    }
+    #delete-check-box-text {
+        text-align :center;
+    }
+
+    #delete-check-box-button {
+        text-align: center;
+        cursor:pointer;
+    }
+
+    table {
+        width: 100%;
+        border-top: 1px solid #444444;
+        border-collapse: collapse;
+    }
+    th, td {
+        border-bottom: 1px solid #444444;
+        border-left: 1px solid #444444;
+        padding: 10px;
+    }
+    th:first-child, td:first-child {
+        border-left: none;
+    }
+
+    .table-row:hover {
+        background-color: lightskyblue;
+    }
+
+    .table-row:active {
+        background-color: lightskyblue;
+    }
+
+    .table-row:visited {
+        color:gray;
+    }
+
+    #post-contents {
+        display: none;
+    }
+
+
+</style>
+
+
+
+<body>
+    <h1><a onClick="location.href='/'" class="saw">Siwha's Meeting'</a></h1>
+
+    <form id="my_form" method="post" action="/user/logout">
+        <a id="logout-text" href="javascript:{}" onclick="document.getElementById('my_form').submit();">로그아웃</a>
+    </form>
+    <a id="login-text" href="javascript:{}" onClick="location.href='/user/login'">로그인</a>
+
+    <div id="grid">
+        <ol>
+            <li> <a onClick="location.href='/move/history'" class="saw" >발자취</a></li>
+            <li> <a onClick="location.href='/move/member'" class="saw" >조직도</a></li>
+            <li> <a onClick="location.href='/move/join'" class="saw" >가입방법</a></li>
+            <li> <a onClick="location.href='/move/noticeboard'" class="saw" id="active">게시판</a></li>
+        </ol>
+
+        <div id="property">
+
+            <div th:if="${username}" th:text="${username}" id="user-check" style="display: none"></div>
+
+            <div class="read-box" id="read-box">
+                <h1>
+                    상세 페이지
+                </h1>
+                <p id="read-box-id" style="display: none"></p>
+                <p id="read-box-username">여기에 작성자 이름</p>
+                <p id="read-box-modifiedAt">여기에 수정시간</p>
+                <p id="read-box-title">여기에 타이틀</p>
+                <textarea placeholder="공유하고 싶은 소식을 입력해주세요" id="post-contents" cols="30"
+                          rows="10" style="width:600px ; height:350px;"></textarea>
+                <div class="read-contents" id="read-box-contents">여기에 해당 내용</div>
+                <br>
+                <div>
+                    <button class="mybtn" onClick="location.href='/move/noticeboard'">돌아가기</button>
+                    <button id="post-edit-btn" onClick='postEdit()'>수정하기</button>
+                    <button id="post-edit-finish-btn" onClick='postEditFinish()'>수정완료</button>
+                </div>
+            </div>
+
+            <div class="mybtn">
+                <button class="mybtn2" onclick='loginCheck()'>댓글 남기기</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>작성자명</th>
+                    <th>날짜</th>
+                    <th>내용</th>
+                    <th>삭제,상세</th>
+                </tr>
+                </thead>
+
+                <tbody id="table-body">
+                </tbody>
+            </table>
+
+
+            <div class="write-box-modal" id="write-box">
+                <h1  style="color: wheat">
+                    댓글 작성 공간입니다.
+                </h1>
+                <p id="username">작성자 이름</p>
+                <!--    <p><input id="username" type="text"/></p>-->
+
+                <textarea class="field" placeholder="댓글을 남겨주세요" id="contents" cols="30"
+                          rows="5" style="width:350px;"></textarea>
+                <div>
+                    <button class="mybtn" id="commentButton" onclick="writePost()">댓글 작성 완료</button>
+                    <button id="comment-edit-finish-btn" onclick="submitEdit()">댓글 수정 완료</button>
+                </div>
+                <div>
+                    <button class="mybtn" onclick='document.getElementById("write-box").style.display = "none"; document.getElementById("editButton").style.display = "none"'>나가기</button>
+                </div>
+            </div>
+
+            <div class="delete-box" id="delete-check-box">
+                <div id="delete-check-box-text">정말로 삭제 하시겠습니까?</div>
+                <div id="delete-check-box-button">
+                    <button id="comment-delete" onclick="deleteOne()">삭제</button>
+                    <button id="comment-delete-exit" onclick='document.getElementById("delete-check-box").style.display = "none"'>취소</button>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+</body>
+</html>

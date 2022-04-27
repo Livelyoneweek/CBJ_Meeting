@@ -1,0 +1,278 @@
+<!doctype html>
+<html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CLLKMSYL76"></script>
+
+    <meta charset="UTF-8">
+    <meta property="og:title" content="CBJ_Home">
+    <meta property="og:description" content="이 사이트 추천이요">
+    <meta property="og:image" content="/images/220424.jpg">
+    <title>CBJ_MAIN</title>
+
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-CLLKMSYL76');
+    </script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+</head>
+
+
+<script>
+    $(document).ready(function () {
+        // HTML 문서를 로드할 때마다 실행합니다.
+        getMessages();
+
+    })
+
+    function getMessages() {
+        // 1. 기존 메모 내용을 지웁니다.
+        $('#cards-box').empty();
+        // 2. 메모 목록을 불러와서 HTML로 붙입니다.
+        $.ajax({
+            type: 'GET',
+            url: '/api/memo/get',
+            success: function (response) {
+                for (let i = 0; i < response.length; i++) {
+                    let message = response[i];
+                    let id = message['id'];
+                    let username = message['username'];
+                    let contents = message['contents'];
+                    let title = message['title'];
+                    let modifiedAt = message['modifiedAt'];
+                    addHTML(id, username, contents, modifiedAt, title);
+                }
+            }
+        })
+
+    }
+    // 메모 하나를 HTML로 만들어서 body 태그 내 원하는 곳에 붙입니다.
+    function addHTML(id, username, contents, modifiedAt, title) {
+        // 1. HTML 태그를 만듭니다.
+        let tempHtml = `<tr class="table-row">
+                        <th id="${id}-username"> ${username}</th>
+                        <th id="title-write">${title}</th>
+                        <th id="date">${modifiedAt}</th>
+                        <th id="${id}-contents">${contents}</th>
+                        <th id="edit-delete">
+                            <button class="deleteButton" id="${id}-delete" onclick="deleteOne('${id}')"> 삭제 버튼 </button>
+                            <button class="movedetailButton" onclick="remember(${id});  location.href='/move/noticeboarddetail'"> 상세 페이지 </button>
+                        </th>
+                    </tr>`;
+        // 2. #table-body 에 HTML을 붙인다.
+        $('#table-body').append(tempHtml);
+
+        let check = `${username}`;
+        let check2= $('#user-check').text();
+
+        if (check == check2) {
+
+            document.getElementById(`${id}-delete`).style.display="inline-block";
+        }
+
+    }
+
+    function remember(id) {
+        localStorage.setItem('id',id);
+    }
+
+
+    function writePost() {
+        // 1. 작성한 메모를 불러옵니다.
+        let contents = $('#contents').val();
+        let title = $('#title').val();
+        let username = $('#user-name').text();
+
+        // 4. 전달할 data JSON으로 만듭니다.
+        let data = {'username': username, 'contents': contents, 'title':title};
+        // 5. POST /api/memos 에 data를 전달합니다.
+        $.ajax({
+            type: "POST",
+            url: "/islogin/memo/write",
+            contentType: "application/json", // JSON 형식으로 전달함을 알리기
+            data: JSON.stringify(data),
+            success: function (response) {
+                alert('메시지가 성공적으로 작성되었습니다.');
+                document.getElementById("write-box").style.display="none";
+                window.location.reload();
+
+            }
+        });
+    }
+
+    function deleteOne(id) {
+        $.ajax({
+            type: "DELETE",
+            url: `/islogin/memo/delete/${id}`,
+            success: function (response) {
+                alert('메시지 삭제에 성공하였습니다.');
+                window.location.reload();
+            }
+        })
+    }
+
+    function logincheck() {
+        let username1 = $('#user-check').text();
+        let username2 = "";
+        if (username1 == username2) {
+            alert("로그인을 먼저 해주시기 바랍니다")
+            location.href = '/'
+        } else {
+            document.getElementById("write-box").style.display="block";
+        }
+    }
+
+    function loginMove() {
+        if($('#user-check').text() != ""){
+            alert("이미 로그인이 되어있습니다");
+            location.href='/';
+        } else{
+            location.href='/user/login';
+        }
+    }
+
+</script>
+
+
+<style>
+    .mybtn {
+        height : 40px;
+        width : 150px;
+        padding:10px;
+        margin: 10px auto 0px auto;
+        cursor:pointer;
+    }
+
+    .mybtn2 {
+        height : 40px;
+        width : 150px;
+        padding:5px;
+        margin: 0 auto 10px auto;
+        font-size: 20px;
+        cursor:pointer;
+    }
+
+
+    #write-box{
+        width: 600px;
+        height : 600px;
+        border : 1px solid;
+        margin : 50px auto 0 auto;
+        text-align: center;
+        background-color: whitesmoke;
+        display: none;
+    }
+
+    #contents {
+        width :300px;
+        height : 200px;
+    }
+
+    .deleteButton {
+        display:none;
+        cursor:pointer;
+    }
+
+    .movedetailButton {
+        cursor:pointer;
+    }
+
+    table {
+        width: 100%;
+        border-top: 1px solid #444444;
+        border-collapse: collapse;
+    }
+    th, td {
+        border-bottom: 1px solid #444444;
+        border-left: 1px solid #444444;
+        padding: 10px;
+    }
+    th:first-child, td:first-child {
+        border-left: none;
+    }
+
+    .table-row:hover {
+        background-color: lightskyblue;
+    }
+
+    .table-row:active {
+        background-color: lightskyblue;
+    }
+
+    .table-row:visited {
+        color:gray;
+    }
+
+
+</style>
+
+<body>
+    <h1><a onClick="location.href='/'" class="saw">Siwha's Meeting'</a></h1>
+
+    <form id="my_form" method="post" action="/user/logout">
+        <a id="logout-text" href="javascript:{}" onclick="document.getElementById('my_form').submit();">로그아웃</a>
+    </form>
+    <a id="login-text" href="javascript:{}" onClick="location.href='/user/login'">로그인</a>
+
+    <div id="grid">
+        <ol>
+            <li> <a onClick="location.href='/move/history'" class="saw" >발자취</a></li>
+            <li> <a onClick="location.href='/move/member'" class="saw" >조직도</a></li>
+            <li> <a onClick="location.href='/move/join'" class="saw" >가입방법</a></li>
+            <li> <a onClick="location.href='/move/noticeboard'" class="saw" id="active">게시판</a></li>
+        </ol>
+
+        <div id="property">
+            <div th:if="${admin_role}" id="admin"></div>
+            <div th:if="${username}" th:text="${username}" id="user-check" style="display: none"></div>
+
+            <div class="mybtn">
+                <button class="mybtn2" onclick='logincheck()'>게시글 남기기</button>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>작성자명</th>
+                        <th>제목</th>
+                        <th>날짜</th>
+                        <th>내용</th>
+                        <th>삭제,상세</th>
+                    </tr>
+                </thead>
+
+                <tbody id="table-body">
+                </tbody>
+            </table>
+
+            <div class="write-box-modal" id="write-box">
+                <h1 style="color:wheat;">
+                    글쓰기 공간입니다.
+                </h1>
+
+                <p>작성자 이름</p>
+                <span id="user-name" th:text="${username}"></span>
+                <p><input id="title" type="text" placeholder="제목을 입력해주세요" style="width:200px; height:20px;"></p>
+                <textarea class="field" placeholder="공유하고 싶은 소식을 입력해주세요" id="contents" cols="30"
+                          rows="10" style="width:500px;"></textarea>
+                <div>
+                    <button class="mybtn" onclick="writePost()">글 작성 완료</button>
+                </div>
+                <div>
+                    <button class="mybtn" onclick='document.getElementById("write-box").style.display = "none"'>나가기</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+</body>
+</html>
