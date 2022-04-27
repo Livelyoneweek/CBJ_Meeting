@@ -1,5 +1,6 @@
 package fighting.cbj_meeting.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import fighting.cbj_meeting.dto.SignupRequestDto;
 import fighting.cbj_meeting.security.UserDetailsImpl;
 import fighting.cbj_meeting.service.UserService;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class UserController {
@@ -42,5 +44,11 @@ public class UserController {
     public String registerUser(SignupRequestDto requestDto) {
         userService.registerUser(requestDto);
         return "redirect:/user/login";
+    }
+
+    @GetMapping("/user/kakao/callback")
+    public String kakaoLogin(@RequestParam String code) throws JsonProcessingException {
+        userService.kakaoLogin(code);
+        return "redirect:/";
     }
 }
