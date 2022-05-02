@@ -3,6 +3,7 @@ package fighting.cbj_meeting.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import fighting.cbj_meeting.dto.SignupRequestDto;
 import fighting.cbj_meeting.security.UserDetailsImpl;
+import fighting.cbj_meeting.service.KakaoUserService;
 import fighting.cbj_meeting.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class UserController {
 
     private final UserService userService;
+    private final KakaoUserService kakaoUserService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, KakaoUserService kakaoUserService) {
         this.userService = userService;
+        this.kakaoUserService = kakaoUserService;
     }
 
     // 회원 로그인 페이지
@@ -48,7 +51,7 @@ public class UserController {
 
     @GetMapping("/user/kakao/callback")
     public String kakaoLogin(@RequestParam String code) throws JsonProcessingException {
-        userService.kakaoLogin(code);
+        kakaoUserService.kakaoLogin(code);
         return "redirect:/";
     }
 }
